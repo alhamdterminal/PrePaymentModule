@@ -1,0 +1,349 @@
+﻿@model IEnumerable<PrePaymentModule.Models.Installment>
+
+<link href="~/css/style.css" rel="stylesheet" />
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+<!-- Buttons extension CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
+
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+<!-- Buttons extension JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+
+<!-- JSZip for Excel export -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- PDFMake for PDF export -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+<!-- Buttons HTML5 export -->
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<style>
+    
+    
+    /* Ensure checkbox background matches the row background */
+    #productsTable tbody tr:nth-child(even) td {
+        background-color: #f2f2f2; /* Light gray for even rows */
+    }
+
+    #productsTable tbody tr:nth-child(odd) td {
+        background-color: #ffffff; /* White for odd rows */
+    }
+
+    /* Style the checkboxes */
+    .installment-checkbox {
+        cursor: pointer; /* Change cursor style */
+    }
+
+    /* Optional: Change the text color in table rows */
+    #productsTable tbody tr td {
+        color: #333; /* Dark gray text color */
+    }
+
+    /* Optional: Change the hover effect for rows */
+    #productsTable tbody tr:hover {
+        background-color: #e0e0e0; /* Slightly darker gray on hover */
+    }
+
+
+
+    /* Custom styles for the buttons */
+    .dt-button {
+        background-color: red; /* Background color */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+        padding: 8px 12px; /* Padding */
+        margin: 5px; /* Margin between buttons */
+        border-radius: 4px; /* Rounded corners */
+        font-size: 14px; /* Font size */
+        cursor: pointer; /* Cursor style */
+    }
+
+        /* Change color on hover */
+        .dt-button:hover {
+            background-color: darkred; /* Darker background on hover */
+        }
+
+    .details-button {
+        background-color: #002D42;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+        .details-button:hover {
+            background-color: #002D42;
+        }
+
+    .done-button {
+        display: none; /* Hidden by default */
+    }
+
+    #historyTable {
+        display: none; /* Hidden by default */
+        margin-top: 20px;
+    }
+
+</style>
+<div class="container cont-2">
+
+    <h2 class="text-center mb-4">Installments Plan</h2>
+    <button class="btn btn-info history-button" id="checkHistoryButton">Check History</button>
+    <table style="border:2px solid #A9A9A9; border-radius:10px;" id="productsTable" class="display table-responsive">
+        <thead>
+            <tr>
+                <th style="color:#fff">Select</th>
+                <th>Installment Code</th>
+                <th>Original Amount</th>
+                <th>Installment Amount</th>
+                <th>Due Date</th>
+                <th>Remaining Balance</th>
+                <th>Action</th>
+
+            </tr>
+        </thead>
+        <tbody style="text-align:center;">
+            @foreach (var record in Model)
+            {
+                <tr>
+                    <td><input type="checkbox" class="installment-checkbox" data-installment-code="@record.InstallmentCOde" /></td>
+                    <td>@record.InstallmentCOde</td>
+                    <td>@record.OriginalAmount</td>
+                    <td>@record.Amount</td>
+                    <td>
+                        @(record.DueDate.HasValue
+                            ? record.DueDate.Value.ToString("dd/MM/yyyy")
+                            : "N/A")
+                    </td>
+                    <td>@record.RemainingBalance</td>
+                    <td>
+                        <button class="btn btn-success done-button"
+                                data-installment-code="@record.InstallmentCOde">
+                            Genarate GV
+                        </button>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="AllPrePaymentRecords" asp-controller="Home" class="btn btn-primary mt-3">Back</a>
+
+</div>
+
+<style>
+    .dt-button,
+    .dt-button:hover {
+        background-color: #003366 !important; /* Dark blue background */
+        color: white !important; /* Text color */
+        border-radius: 5px; /* Rounded corners */
+        border: none !important; /* Remove default border */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+    }
+
+        .dt-button:hover {
+            background-color: #00509e !important; /* Lighter blue on hover */
+            transform: scale(1.05); /* Slightly enlarge on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+        }
+</style>
+
+<script>
+    $(document).ready(function () {
+        $('#productsTable').DataTable();
+    });
+
+    $('#productsTable').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        pageLength: 25,
+        lengthMenu: [25, 50, 100],
+        dom: 'Bfrtip',
+        buttons: [
+
+            {
+                extend: 'excel',
+                text: '<i class="fas fa-file-excel"></i> Excel', // Button with icon
+                titleAttr: 'Export to Excel', // Tooltip text
+                className: 'dt-button',
+                init: function (api, node) {
+                    $(node).css({
+                        'background-color': '#003366',
+                        'color': 'white',
+                        'border-radius': '5px'
+                    });
+                }
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="fas fa-download"></i> Download', // Button with icon
+                titleAttr: 'Download as PDF', // Tooltip text
+                className: 'dt-button',
+                init: function (api, node) {
+                    $(node).css({
+                        'background-color': '#003366',
+                        'color': 'white',
+                        'border-radius': '5px'
+                    });
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="fas fa-print"></i> Print', // Button with icon
+                titleAttr: 'Print Table', // Tooltip text
+                className: 'dt-button',
+                init: function (api, node) {
+                    $(node).css({
+                        'background-color': '#003366',
+                        'color': 'white',
+                        'border-radius': '5px'
+                    });
+                }
+            }
+        ]
+    });
+    $('.installment-checkbox').on('change', function () {
+        var isChecked = $(this).is(':checked');
+        $(this).closest('tr').find('.done-button').toggle(isChecked);
+    });
+
+    $('.done-button').on('click', function () {
+        var installmentCode = $(this).data('installment-code');
+       
+
+        $.ajax({
+            url: '@Url.Action("SaveEntries", "Home")',
+            type: 'POST',
+            data: {
+                installmentCode: installmentCode
+                
+            },
+            success: function (response) {
+                alert("GV Has Been Created.");
+                location.reload(); // Reload the page to see changes
+            },
+            error: function (xhr) {
+                alert("An error occurred: " + xhr.responseText);
+            }
+        });
+    });
+
+    // $('.done-button').on('click', function () {
+    //     var installmentCode = $(this).data('installment-code');
+    //     var dueDate = $(this).data('due-date');
+
+    //     $.ajax({
+    //         url: '@Url.Action("MarkAsPaid", "Home")',
+    //         type: 'POST',
+    //         data: {
+    //             installmentCode: installmentCode,
+    //             dueDate: dueDate
+    //         },
+    //         success: function (response) {
+    //             alert("Installment marked as paid.");
+    //             location.reload(); // Reload the page to see changes
+    //         },
+    //         error: function (xhr) {
+    //             alert("An error occurred: " + xhr.responseText);
+    //         }
+    //     });
+    // });
+
+    $('#checkHistoryButton').on('click', function () {
+        // Get the first installment code from the table
+        var installmentCode = $('#productsTable tbody tr:first-child .installment-checkbox').data('installment-code');
+
+        // Redirect to the action method with the installment code
+        window.location.href = '@Url.Action("GetInstallmentHistory", "Home")?installmentCode=' + installmentCode;
+    });
+    // $('#checkHistoryButton').on('click', function () {
+    //     // Get the first installment code from the table
+    //     var installmentCode = $('#productsTable tbody tr:first-child .installment-checkbox').data('installment-code');
+
+    //     $.ajax({
+    //         url: '@Url.Action("GetInstallmentHistory", "Home")',
+    //         type: 'GET',
+    //         data: { installmentCode: installmentCode },
+    //         success: function (data) {
+    //             let tableContent = '';
+    //             console.log(data); // Check data structure in the console
+
+    //             // Check if data is an array
+    //             if (!Array.isArray(data)) {
+    //                 console.error("Data is not an array", data);
+    //                 Swal.fire('Error', 'Unexpected data format received.', 'error');
+    //                 return;
+    //             }
+
+    //             // Build table content
+    //             if (data.length === 0) {
+    //                 tableContent = '<tr><td colspan="6">No history found.</td></tr>';
+    //             } else {
+    //                 data.forEach(function (entry) {
+    //                     tableContent += '<tr>' +
+    //                         '<td>' + entry.installmentCode + '</td>' +
+    //                         '<td>' + entry.originalAmount + '</td>' +
+    //                         '<td>' + entry.amount + '</td>' +
+    //                         '<td>' + new Date(entry.dueDate).toLocaleDateString() + '</td>' +
+    //                         '<td>' + entry.remainingBalance + '</td>' +
+    //                         '<td>' + entry.status + '</td>' +
+    //                         '</tr>';
+    //                 });
+    //             }
+
+    //             // Create the table HTML
+    //             var table1 = '<table id="historyTable" class="display">' +
+    //                 '<thead>' +
+    //                 '<tr>' +
+    //                 '<th>Installment Code</th>' +
+    //                 '<th>Original Amount</th>' +
+    //                 '<th>Amount</th>' +
+    //                 '<th>Due Date</th>' +
+    //                 '<th>Remaining Balance</th>' +
+    //                 '<th>Status</th>' +
+    //                 '</tr>' +
+    //                 '</thead>' +
+    //                 '<tbody>' +
+    //                 tableContent +
+    //                 '</tbody>' +
+    //                 '</table>';
+
+    //             // Show the SweetAlert with the table
+    //             Swal.fire({
+    //                 title: 'Installment History',
+    //                 html: table1,
+    //                 showCloseButton: true,
+    //                 didOpen: () => {
+    //                     // Initialize DataTable here
+    //                     $('#historyTable').DataTable();
+    //                 }
+    //             });
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error("AJAX Error: ", status, error);
+    //             Swal.fire('Error', 'An error occurred while fetching history.', 'error');
+    //         }
+    //     });
+    // });
+</script> 
+ 

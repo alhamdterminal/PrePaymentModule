@@ -1,0 +1,199 @@
+﻿@using System.Data
+@model DataTable
+@* @{
+    var reportData = ViewBag.ReportData as DataTable;
+} *@
+
+<h2>PrePayment Report</h2>
+<div style="text-align: center; margin-bottom: 20px;">
+    <strong>Report Period:</strong>
+    @ViewBag.StartDate - @ViewBag.EndDate
+</div>
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.js"></script>
+<!-- Buttons extension JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+        font-size: 14px; /* Smaller font for body */
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        font-size: 18px; /* Smaller font for heading */
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px; /* Smaller font for table */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 8px; /* Reduced padding for smaller rows */
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background-color: #002D42;
+        color: white;
+        text-transform: uppercase;
+        font-size: 14px; /* Smaller font for table headers */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tbody tr:hover {
+        background-color: #e0f7fa;
+    }
+
+    .error-message {
+        color: red;
+        margin: 20px;
+        font-weight: bold;
+        text-align: center;
+        font-size: 14px; /* Smaller font for error messages */
+    }
+
+    .no-data {
+        text-align: center;
+        font-size: 14px; /* Smaller font for no data message */
+        color: #555;
+    }
+</style>
+
+<table id="tblhistory" class="display">
+    <thead>
+        <tr>
+            <th>Installment Code</th>
+            <th>Expense Account</th>
+            <th>Deferred Expense Account</th>
+            <th>Original Amount</th>
+            <th>Opening Balance</th>
+            <th>From</th>
+            <th>To</th>
+            <!-- Dynamic month headers -->
+            @foreach (DataColumn column in Model.Columns)
+            {
+                if (!new[] { "InstallmentCode", "ExpenseAccount", "DeferredExpenseAccount", "OriginalAmount", "OpeningBalance", "From", "To", "ClosingBalance" }.Contains(column.ColumnName))
+                {
+                    <th>@column.ColumnName</th>
+                }
+            }
+            <th>Closing Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DataRow row in Model.Rows)
+        {
+            <tr>
+                <td>@row["InstallmentCode"]</td>
+                <td>@row["ExpenseAccount"]</td>
+                <td>@row["DeferredExpenseAccount"]</td>
+                <td>@row["OriginalAmount"]</td>
+                <td>@row["OpeningBalance"]</td>
+                <td>@Convert.ToDateTime(row["From"]).ToString("yyyy-MM-dd")</td> 
+                <td>@Convert.ToDateTime(row["To"]).ToString("yyyy-MM-dd")</td>   
+                <!-- Dynamic month data -->
+                @foreach (DataColumn column in Model.Columns)
+                {
+                    if (!new[] { "InstallmentCode", "ExpenseAccount", "DeferredExpenseAccount", "OriginalAmount", "OpeningBalance", "From", "To", "ClosingBalance" }.Contains(column.ColumnName))
+                    {
+                        <td>@row[column.ColumnName]</td>
+                    }
+                }
+                <td>@row["ClosingBalance"]</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="mt-3">
+    <a asp-action="Privacy" asp-controller="Home" class="btn btn-primary" style="padding-left: 20px; padding-right: 20px; min-width: 150px;">Back</a>
+</div>
+
+<script>
+    $(document).ready(function () {
+        console.log("Document ready, initializing DataTable");
+
+        $('#tblhistory').DataTable({
+            paging: true,
+            searching: true,
+            info: true,
+            pageLength: 25,
+            lengthMenu: [25, 50, 100],
+            dom: 'Bfrtip',
+
+             
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    titleAttr: 'Export to Excel',
+                    className: 'dt-button'
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-download"></i> Download',
+                    titleAttr: 'Download as PDF',
+                    className: 'dt-button'
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i> Print',
+                    titleAttr: 'Print Table',
+                    className: 'dt-button'
+                }
+            ],
+            language: {
+                emptyTable: "No data available in table"
+            },
+            autoWidth: true, // Allow DataTables to adjust widths based on content
+            columnDefs: [
+                { targets: [5, 6], width: '120px' }, // Optional: Fixed widths for date columns
+                { targets: 2, className: 'dt-left' } // Align "Deferred Expense Account" to the left for better readability
+            ]
+        });
+        console.log("DataTable initialized successfully");
+    });
+</script>
+
+<style>
+    /* Add this CSS to prevent text wrapping in date columns */
+    #tblhistory td:nth-child(6),
+    #tblhistory td:nth-child(7) {
+        white-space: nowrap; /* Prevent wrapping */
+    }
+
+    /* Optionally, you can set a minimum width for the Deferred Expense Account column */
+    #tblhistory td:nth-child(3) {
+        min-width: 200px; /* Adjust as necessary */
+    }
+</style>
+
+

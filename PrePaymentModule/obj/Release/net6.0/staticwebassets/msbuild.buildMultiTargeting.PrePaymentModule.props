@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\PrePaymentModule.props" />
+</Project>
